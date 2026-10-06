@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+ksom/__init__.py
+ksom/console.py
+ksom/plots.py
+ksom/som.py
+ksom.egg-info/PKG-INFO
+ksom.egg-info/SOURCES.txt
+ksom.egg-info/dependency_links.txt
+ksom.egg-info/requires.txt
+ksom.egg-info/top_level.txt
+tests/test_som.py
