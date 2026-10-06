@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "A professional, beginner-friendly Kohonen Self-Organizing Map library with beautiful visualizations."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 dependencies = [
     "numpy>=1.24",
     "pandas>=2.0",
@@ -18,8 +18,13 @@ dependencies = [
     "openpyxl>=3.1",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest"]
 
 [tool.setuptools.packages.find]
 include = ["ksom_lab*"]
+
+[dependency-groups]
+dev = [
+    "build>=1.6.1",
+    "pytest>=9.1.1",
+    "twine>=7.0.0",
+]
