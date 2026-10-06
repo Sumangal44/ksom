@@ -24,6 +24,9 @@ class BasicKSOM:
         Stop when the max weight change drops below this.
     max_iterations : int
         Maximum number of training iterations.
+    decay : bool
+        If True, decay the learning rate each iteration:
+        ``lr_t = lr0 / (1 + t / 10)``.
 
     Examples
     --------
@@ -41,6 +44,7 @@ class BasicKSOM:
         learning_rate: float = 0.1,
         epsilon: float = 0.0001,
         max_iterations: int = 100,
+        decay: bool = False,
     ) -> None:
         W = np.asarray(weights, dtype=float)
         if W.ndim != 2:
@@ -56,10 +60,12 @@ class BasicKSOM:
         self.learning_rate = float(learning_rate)
         self.epsilon = float(epsilon)
         self.max_iterations = int(max_iterations)
+        self.decay = bool(decay)
 
         self.weights_: np.ndarray | None = None
         self.history_: list[dict] = []
         self.iterations_: int = 0
+        self.converged_: bool = False
 
     # ------------------------------------------------------------------
     # Training
@@ -75,8 +81,13 @@ class BasicKSOM:
 
         for iteration in range(1, self.max_iterations + 1):
             old_W = W.copy()
+            lr = (
+                self.learning_rate / (1.0 + iteration / 10.0)
+                if self.decay
+                else self.learning_rate
+            )
             if verbose:
-                print(f"\n{'=' * 32}\nITERATION: {iteration}\n{'=' * 32}")
+                print(f"\n{'=' * 32}\nITERATION: {iteration}  (lr={lr:.4f})\n{'=' * 32}")
 
             for input_no, x in enumerate(X, start=1):
                 distances = np.array(
@@ -85,7 +96,7 @@ class BasicKSOM:
                 winner = int(np.argmin(distances))
 
                 old_weight = W[winner].copy()
-                W[winner] = W[winner] + self.learning_rate * (x - W[winner])
+                W[winner] = W[winner] + lr * (x - W[winner])
                 change = float(np.max(np.abs(W[winner] - old_weight)))
 
                 if verbose:
@@ -102,7 +113,7 @@ class BasicKSOM:
                     "Input": input_no,
                     "Input_Vector": "".join(str(int(v)) for v in x),
                     "Winner": winner + 1,
-                    "Learning_Rate": self.learning_rate,
+                    "Learning_Rate": lr,
                     "Weight_Change": change,
                 }
                 for c, d in enumerate(distances):
@@ -116,9 +127,14 @@ class BasicKSOM:
             if verbose:
                 print("\nMaximum Weight Change:", weight_change)
             if weight_change < self.epsilon:
+                self.converged_ = True
                 if verbose:
                     print("\n>>> TRAINING STOPPED <<<")
-                    print("Reason: Weight change < epsilon")
+                    if weight_change == 0.0:
+                        print("Weights matched exactly (no change).")
+                    else:
+                        print("Reason: Weight change < epsilon")
+                    print(f">>> SOLVED in {iteration} iterations <<<")
                 break
 
         self.weights_ = W
@@ -160,6 +176,70 @@ class BasicKSOM:
             index=[f"y{i + 1}" for i in range(W.shape[0])],
             columns=[f"x{j + 1}" for j in range(W.shape[1])],
         )
+
+    def quantization_error(self, X) -> float:
+        """Mean distance of each input to its winning cluster centre."""
+        W = self._check_fitted()
+        X = np.asarray(X, dtype=float)
+        errs = []
+        for x in X:
+            d = [np.sqrt(np.sum((x - W[c]) ** 2)) for c in range(len(W))]
+            errs.append(min(d))
+        return float(np.mean(errs))
+
+    def summary(self, X) -> str:
+        """One-block lab-report style summary."""
+        self._check_fitted()
+        lines = [
+            "===== KSOM SUMMARY =====",
+            f"Iterations run : {self.iterations_}",
+            f"Converged      : {self.converged_}",
+            f"Max iterations : {self.max_iterations}",
+            f"Learning rate  : {self.learning_rate} (decay={self.decay})",
+            f"Epsilon        : {self.epsilon}",
+            f"Quantization error: {self.quantization_error(X):.6f}",
+            "",
+            "Final Weights:",
+            self.final_weights_frame().to_string(),
+            "",
+            "Cluster Assignment:",
+            self.predict(X).to_string(index=False),
+        ]
+        return "\n".join(lines)
+
+    # ------------------------------------------------------------------
+    # Visualization
+    # ------------------------------------------------------------------
+
+    def plot(self, X=None, save: str | None = None):
+        """Plot max weight change per iteration and cluster assignment."""
+        import matplotlib.pyplot as plt
+
+        df = pd.DataFrame(self.history_)
+        curve = df.groupby("Iteration")["Weight_Change"].max()
+
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+
+        axes[0].plot(curve.index, curve.values, marker="o", ms=3)
+        axes[0].set_title("Weight Change per Iteration")
+        axes[0].set_xlabel("Iteration")
+        axes[0].set_ylabel("Max Weight Change")
+        axes[0].grid(alpha=0.3)
+
+        if X is not None:
+            clusters = self.predict(X)
+            counts = clusters["Cluster"].value_counts().sort_index()
+            axes[1].bar(counts.index, counts.values, color=["steelblue", "salmon"][: len(counts)])
+            axes[1].set_title("Cluster Assignment")
+            axes[1].set_xlabel("Cluster")
+            axes[1].set_ylabel("Number of Inputs")
+        else:
+            axes[1].axis("off")
+
+        fig.tight_layout()
+        if save:
+            fig.savefig(save, dpi=150)
+        return fig
 
     # ------------------------------------------------------------------
     # Export
