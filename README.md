@@ -2,6 +2,8 @@
 
 A professional, beginner-friendly **Kohonen Self-Organizing Map** library with beautiful visualizations and clean console output.
 
+See **[DOCUMENTATION.md](DOCUMENTATION.md)** for full usage, parameters, methods, examples, and tests.
+
 ## Install
 
 ```bash
