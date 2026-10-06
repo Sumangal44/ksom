@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ksom"
+name = "ksom-lab"
 version = "1.0.0"
 description = "A professional, beginner-friendly Kohonen Self-Organizing Map library with beautiful visualizations."
 readme = "README.md"

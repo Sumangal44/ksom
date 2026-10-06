@@ -7,6 +7,10 @@ See **[DOCUMENTATION.md](DOCUMENTATION.md)** for full usage, parameters, methods
 ## Install
 
 ```bash
+pip install ksom-lab        # from PyPI
+# or from GitHub:
+pip install git+https://github.com/Sumangal44/ksom.git
+# or locally:
 pip install -e .
 ```
 
