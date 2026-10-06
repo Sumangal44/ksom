@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ksom import SOM
+from ksom_lab import SOM
 
 
 @pytest.fixture

@@ -39,7 +39,7 @@ class SOM:
     Examples
     --------
     >>> import numpy as np
-    >>> from ksom import SOM
+    >>> from ksom_lab import SOM
     >>> rng = np.random.default_rng(0)
     >>> X = rng.normal(size=(50, 4))
     >>> som = SOM(rows=4, cols=4, random_state=0).fit(X, epochs=10, verbose=False)

@@ -6,7 +6,7 @@ matplotlib.use("Agg")
 
 import numpy as np
 
-from ksom import SOM
+from ksom_lab import SOM
 
 X = np.array([
     [1, 0, 1, 0],   # 1010

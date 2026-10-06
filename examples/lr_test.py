@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from ksom import BasicKSOM
+from ksom_lab import BasicKSOM
 
 X = np.array(
     [

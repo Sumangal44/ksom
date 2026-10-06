@@ -22,4 +22,4 @@ dependencies = [
 dev = ["pytest"]
 
 [tool.setuptools.packages.find]
-include = ["ksom*"]
+include = ["ksom_lab*"]

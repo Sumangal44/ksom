@@ -1,4 +1,4 @@
-"""ksom — a clean, beautiful Kohonen Self-Organizing Map library."""
+"""ksom-lab — a clean, beautiful Kohonen Self-Organizing Map library."""
 
 from .ksom_basic import BasicKSOM
 from .som import SOM, TrainingHistory

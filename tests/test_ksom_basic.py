@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ksom.ksom_basic import BasicKSOM
+from ksom_lab.ksom_basic import BasicKSOM
 
 
 @pytest.fixture

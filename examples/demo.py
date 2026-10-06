@@ -9,7 +9,7 @@ matplotlib.use("Agg")  # save figures without a display
 
 import numpy as np
 
-from ksom import SOM
+from ksom_lab import SOM
 
 rng = np.random.default_rng(42)
 

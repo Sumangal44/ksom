@@ -1,6 +1,6 @@
-# ksom — Full Documentation
+# ksom-lab — Full Documentation
 
-`ksom` is a beginner-friendly Kohonen Self-Organizing Map (SOM) library.
+`ksom-lab` is a beginner-friendly Kohonen Self-Organizing Map (SOM) library.
 It provides two models:
 
 | Model | Best for |
@@ -15,7 +15,7 @@ It provides two models:
 ```bash
 pip install ksom-lab        # from PyPI
 # or from GitHub:
-pip install git+https://github.com/Sumangal44/ksom.git
+pip install git+https://github.com/Sumangal44/ksom-lab.git
 # or locally:
 pip install -e .
 ```
@@ -36,7 +36,7 @@ python3 -m pytest tests/ -v
 
 ```python
 import numpy as np
-from ksom import BasicKSOM
+from ksom_lab import BasicKSOM
 
 X = np.array([[1,0,1,0],[1,0,0,0],[1,1,1,1],[0,1,1,0]], dtype=float)
 W = np.array([[0.3,0.5,0.7,0.2],[0.6,0.5,0.4,0.2]], dtype=float)
@@ -111,7 +111,7 @@ rows simply swaps cluster labels. See `examples/weights_test.py`.
 
 ```python
 import numpy as np
-from ksom import SOM
+from ksom_lab import SOM
 
 rng = np.random.default_rng(0)
 X = rng.normal(size=(200, 4))

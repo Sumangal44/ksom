@@ -1,4 +1,4 @@
-# ksom
+# ksom-lab
 
 A professional, beginner-friendly **Kohonen Self-Organizing Map** library with beautiful visualizations and clean console output.
 
@@ -9,7 +9,7 @@ See **[DOCUMENTATION.md](DOCUMENTATION.md)** for full usage, parameters, methods
 ```bash
 pip install ksom-lab        # from PyPI
 # or from GitHub:
-pip install git+https://github.com/Sumangal44/ksom.git
+pip install git+https://github.com/Sumangal44/ksom-lab.git
 # or locally:
 pip install -e .
 ```
@@ -18,7 +18,7 @@ pip install -e .
 
 ```python
 import numpy as np
-from ksom import SOM
+from ksom_lab import SOM
 
 rng = np.random.default_rng(0)
 X = rng.normal(size=(200, 4))
@@ -49,7 +49,7 @@ training history, Excel export, and convergence reporting.
 
 ```python
 import numpy as np
-from ksom import BasicKSOM
+from ksom_lab import BasicKSOM
 
 X = np.array([[1,0,1,0],[1,0,0,0],[1,1,1,1],[0,1,1,0]], dtype=float)
 W = np.array([[0.3,0.5,0.7,0.2],[0.6,0.5,0.4,0.2]], dtype=float)
@@ -81,7 +81,7 @@ Reason: Weight change < epsilon
 ## Project layout
 
 ```
-ksom/            # the library
+ksom_lab/      # the library
   som.py         # SOM algorithm
   plots.py       # visualizations
   console.py     # rich console output
