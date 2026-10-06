@@ -38,6 +38,42 @@ som.plot_error()             # quantization error curve
 - Seaborn-styled plots (U-Matrix, hit map, component planes, error curve)
 - `save="file.png"` on every plot for reports
 
+## BasicKSOM (student NN lab)
+
+A small, transparent, script-style KSOM with step-by-step output,
+training history, Excel export, and convergence reporting.
+
+```python
+import numpy as np
+from ksom import BasicKSOM
+
+X = np.array([[1,0,1,0],[1,0,0,0],[1,1,1,1],[0,1,1,0]], dtype=float)
+W = np.array([[0.3,0.5,0.7,0.2],[0.6,0.5,0.4,0.2]], dtype=float)
+
+model = BasicKSOM(W, learning_rate=0.1, epsilon=0.0001,
+                  max_iterations=100, decay=False)
+model.fit(X, verbose=True)   # prints every distance / winner / update
+print(model.summary(X))      # lab-report style summary
+model.plot(X, save="basic_ksom.png")
+model.save_excel(X, "KSOM_Result.xlsx")
+```
+
+**Parameters:** `weights`, `learning_rate` (default 0.1), `epsilon`
+(default 0.0001), `max_iterations` (default 100), `decay` (default
+False — decays lr as `lr/(1+t/10)`).
+
+**After fitting:** `weights_`, `history_`, `iterations_`, `converged_`,
+plus `predict(X)`, `quantization_error(X)`, `summary(X)`, `plot()`,
+`save_excel()`.
+
+Training ends with:
+
+```
+>>> TRAINING STOPPED <<<
+Reason: Weight change < epsilon
+>>> SOLVED in 34 iterations <<<
+```
+
 ## Project layout
 
 ```
@@ -45,6 +81,7 @@ ksom/            # the library
   som.py         # SOM algorithm
   plots.py       # visualizations
   console.py     # rich console output
+  ksom_basic.py  # BasicKSOM (lab-style KSOM)
 examples/demo.py # full example (see legacy_ksom.py for the old script)
 tests/           # pytest suite
 ```
