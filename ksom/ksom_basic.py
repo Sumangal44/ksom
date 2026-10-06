@@ -1,8 +1,29 @@
-"""Beginner-friendly 2-cluster KSOM (Kohonen SOM) with fixed learning rate.
+"""BasicKSOM — a small, transparent Kohonen Self-Organizing Map.
 
-This is a cleaned-up, reusable version of the classic script-style KSOM:
-Euclidean-distance winner selection, winner-only updates, epsilon stopping,
-per-iteration history, and Excel export.
+This module implements the classic script-style KSOM used in NN labs:
+
+For each input vector ``x``:
+
+1. Compute the Euclidean distance from ``x`` to every cluster weight::
+
+       d_c = sqrt( sum( (x - w_c)^2 ) )
+
+2. Pick the winning cluster ``c*`` with the smallest distance.
+
+3. Update only the winner's weight vector::
+
+       w_c* <- w_c* + lr * (x - w_c*)
+
+4. After all inputs, if the maximum weight change is below ``epsilon``,
+   training is solved. Otherwise repeat for the next iteration.
+
+Student-friendly extras:
+
+- ``verbose=True`` prints every distance, winner, and old/new weight
+- ``history_`` records every step for later inspection
+- ``summary(X)`` gives a one-block lab-report output
+- ``plot()`` draws the weight-change curve and cluster counts
+- ``save_excel()`` exports all results to a workbook
 """
 
 from __future__ import annotations
@@ -12,21 +33,35 @@ import pandas as pd
 
 
 class BasicKSOM:
-    """Simple winner-take-all KSOM with a fixed learning rate.
+    """Simple winner-take-all KSOM with a fixed (optionally decaying) rate.
 
     Parameters
     ----------
     weights : array-like, shape (n_clusters, n_features)
-        Initial weight matrix.
+        Initial weight matrix. One row per cluster.
     learning_rate : float
-        Fixed learning rate in ``(0, 1]``.
+        Step size in ``(0, 1]``. Larger values converge faster but may
+        oscillate; used as the initial rate when ``decay=True``.
     epsilon : float
-        Stop when the max weight change drops below this.
+        Stop when the maximum weight change in an iteration drops
+        below this value (e.g. ``1e-4``).
     max_iterations : int
-        Maximum number of training iterations.
+        Hard upper limit on the number of training iterations.
     decay : bool
-        If True, decay the learning rate each iteration:
-        ``lr_t = lr0 / (1 + t / 10)``.
+        If True, shrink the learning rate each iteration:
+        ``lr_t = lr0 / (1 + t / 10)``. Helps with late-stage stability.
+
+    Attributes
+    ----------
+    weights_ : ndarray or None
+        Learned weight matrix after ``fit``.
+    history_ : list of dict
+        One record per (iteration, input): distances, winner,
+        old/new weights, and weight change.
+    iterations_ : int
+        Number of iterations actually run.
+    converged_ : bool
+        True if training stopped via the epsilon rule.
 
     Examples
     --------
@@ -36,6 +71,8 @@ class BasicKSOM:
     >>> model = BasicKSOM(W, learning_rate=0.1).fit(X, verbose=False)
     >>> model.weights_.shape
     (2, 4)
+    >>> model.converged_
+    True
     """
 
     def __init__(
@@ -72,6 +109,20 @@ class BasicKSOM:
     # ------------------------------------------------------------------
 
     def fit(self, X, verbose: bool = True) -> "BasicKSOM":
+        """Train the map.
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            Training inputs.
+        verbose : bool
+            Print every distance, winner, and weight update.
+
+        Returns
+        -------
+        BasicKSOM
+            The fitted model (``self``).
+        """
         X = np.asarray(X, dtype=float)
         if X.ndim != 2 or X.shape[1] != self.weights0_.shape[1]:
             raise ValueError("X must be 2D with matching feature count")
@@ -151,6 +202,11 @@ class BasicKSOM:
         return self.weights_
 
     def predict(self, X) -> pd.DataFrame:
+        """Assign each input to its nearest (winning) cluster.
+
+        Returns a DataFrame with columns ``Input``, ``Vector``,
+        ``Cluster`` and one ``Distance_Ck`` per cluster.
+        """
         W = self._check_fitted()
         X = np.asarray(X, dtype=float)
         rows = []
@@ -170,6 +226,7 @@ class BasicKSOM:
         return pd.DataFrame(rows)
 
     def final_weights_frame(self) -> pd.DataFrame:
+        """Final weight matrix as a DataFrame (rows y1..yk, cols x1..xn)."""
         W = self._check_fitted()
         return pd.DataFrame(
             W,
@@ -179,6 +236,7 @@ class BasicKSOM:
 
     def quantization_error(self, X) -> float:
         """Mean distance of each input to its winning cluster centre."""
+
         W = self._check_fitted()
         X = np.asarray(X, dtype=float)
         errs = []
@@ -246,6 +304,11 @@ class BasicKSOM:
     # ------------------------------------------------------------------
 
     def save_excel(self, X, path: str = "KSOM_Result.xlsx") -> str:
+        """Export results to an Excel workbook; returns the file path.
+
+        Sheets: ``Input Data``, ``Iterations``, ``Final Weights``,
+        ``Clusters``.
+        """
         W = self._check_fitted()
         X = np.asarray(X, dtype=float)
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
