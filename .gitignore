@@ -9,3 +9,4 @@ build/
 # Generated KSOM outputs
 *.xlsx
 examples/*.png
+.venv/
